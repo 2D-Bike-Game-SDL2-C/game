@@ -1,9 +1,15 @@
 #include "gameobject.h"
 
 // GameObject implementation
-GameObject::GameObject(int x, int y, int w, int h) : active(true) {
-    rect = {x, y, w, h};
-}
+GameObject::GameObject(int x, int y, int w, int h, const std::string ID, int frame, int speed) 
+    : rect{x, y, w, h},
+    active(true),
+    textureID(ID),
+    currentFrame(0), 
+    frameCount(frame), 
+    animationSpeed(speed), 
+    frameCounter(0) 
+{}
 
 const SDL_Rect& GameObject::getRect() const {
     return rect;
@@ -21,37 +27,71 @@ bool GameObject::checkCollision(const SDL_Rect& other) const {
     return SDL_HasIntersection(&rect, &other);
 }
 
+void GameObject::setTextureID(const std::string& id) {
+    textureID = id;
+}
+
+const std::string& GameObject::getTextureID() const {
+    return textureID;
+}
+
+void GameObject::update() {
+    // Update animation frame
+    frameCounter++;
+    if (frameCounter > animationSpeed) {
+        frameCounter = 0;
+        
+        // Always animate (player is always moving)
+        currentFrame = (currentFrame + 1) % frameCount;
+    }
+}
+
 // Cell implementation
 Cell::Cell(CellType t, int x, int y, int w, int h)
-    : GameObject(x, y, w, h), type(t), collected(false) {
+    : GameObject(x, y, w, h, "", 1, 0), 
+    type(t), 
+    collected(false) {
     // Set appropriate texture ID based on cell type
     switch (type) {
         case CellType::OBSTACLE:
-            textureID = "obstacle";
+            setTextureID("obstacle");
+            frameCount = 2;
+            animationSpeed = 30;
             break;
         case CellType::COIN:
-            textureID = "coin";
+            setTextureID("coin");
             break;
         case CellType::FINISH:
-            textureID = "finish";
+            setTextureID("finish");
             break;
         default:
-            textureID = "";
+            setTextureID("");
             break;
     }
 }
 
-void Cell::update() {
-    
-}
+void Cell::render(SDL_Renderer* renderer) const
+{}
 
-void Cell::render(SDL_Renderer* renderer) const {
+void Cell::render(SDL_Renderer* renderer, const SDL_Rect& destRect) const {
     if (!active || collected) return;
     
     // Only render if we have a texture ID
     if (!textureID.empty()) {
+        // Use sprite sheet rendering
+        TheTextureManager::Instance()->drawFrame(
+            textureID, 
+            destRect.x, destRect.y, 
+            destRect.w, destRect.h, 
+            0,                  // row 0
+            currentFrame, 
+            renderer
+        );
+    } 
+    /*if (!textureID.empty()) {
         TheTextureManager::Instance()->draw(textureID, rect.x, rect.y, rect.w, rect.h, renderer);
-    } else {
+    }*/
+    else {
         // Fallback to original rendering if no texture is available
         switch (type) {
             case CellType::OBSTACLE:
@@ -109,26 +149,10 @@ std::string& Cell::getTextureID()
 
 // Player implementation
 Player::Player(int x, int y)
-    : GameObject(x, y, PLAYER_WIDTH, PLAYER_HEIGHT), 
+    : GameObject(x, y, PLAYER_WIDTH, PLAYER_HEIGHT, "player", 6, 20), 
       score(0), 
-      alive(true), 
-      textureID("player"),
-      currentFrame(0),
-      frameCount(3),        // frames per animation
-      animationSpeed(20),    // Update frame every 5 game frames
-      frameCounter(0)
+      alive(true)
 {}
-
-void Player::update() {
-    // Update animation frame
-    frameCounter++;
-    if (frameCounter > animationSpeed) {
-        frameCounter = 0;
-        
-        // Always animate (player is always moving)
-        currentFrame = (currentFrame + 1) % frameCount;
-    }
-}
 
 void Player::render(SDL_Renderer* renderer) const {
     if (!active) return;
@@ -143,13 +167,16 @@ void Player::render(SDL_Renderer* renderer) const {
             currentFrame, 
             renderer
         );
-    } else {
+    }
+    else {
         // Fallback to original rendering
         SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); // Blue for player
         SDL_RenderFillRect(renderer, &rect);
     }
 }
 
+void Player::render(SDL_Renderer* renderer, const SDL_Rect& destRect) const
+{}
 
 void Player::moveLeft() {
     rect.x -= PLAYER_SPEED;
@@ -178,6 +205,3 @@ void Player::kill() {
     alive = false;
 }
 
-void Player::setTextureID(const std::string& id) {
-    textureID = id;
-}

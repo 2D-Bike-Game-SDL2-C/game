@@ -69,22 +69,22 @@ void GameMap::render(SDL_Renderer* renderer) const {
         int screenY = row * GRID_SIZE + intScrollOffset;
         
         // Only draw rows that are visible
-        if (screenY < SCREEN_HEIGHT) {                          //screenY + GRID_SIZE > 0 &&
+        if (screenY < SCREEN_HEIGHT) {                         //screenY + GRID_SIZE > 0 &&
             for (int col = 0; col < GRID_COLS; ++col) {
                 if (grid[row][col]) {
                     // Calculate screen position
                     SDL_Rect tempRect = {
-                        col * GRID_SIZE,
-                        screenY,
-                        GRID_SIZE,
-                        GRID_SIZE
+                        col * GRID_SIZE, //x
+                        screenY,         //y
+                        GRID_SIZE,       //w
+                        GRID_SIZE        //h
                     };
                     
                     Cell* cell = dynamic_cast<Cell*>(grid[row][col].get());
                     if (cell && !cell->isCollected() && !cell->getTextureID().empty()) {
-                        TheTextureManager::Instance()->draw(cell->getTextureID(), tempRect.x, tempRect.y, tempRect.w, tempRect.h, renderer);
+                        cell->render(renderer, tempRect);
                     }
-                     /*else {
+                    /*else {
                         // Fallback to default rendering (optional, but provides safety)
                         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
                         SDL_RenderDrawRect(renderer, &tempRect);
@@ -111,8 +111,9 @@ void GameMap::shiftRowsDown() {
 }
 
 void GameMap::generateRow(int rowIndex) {
+
     // Calculate if this should be the finish line
-    bool isFinishLine = !finishLineGenerated && scrolledRows > 50 && rowIndex == 0;
+    bool isFinishLine = !finishLineGenerated && scrolledRows > MAX_ROWS && rowIndex == 0;
     
     if (isFinishLine) {
         for (int col = 0; col < GRID_COLS; ++col) {
@@ -186,6 +187,7 @@ bool GameMap::checkCollision(const SDL_Rect& playerRect, int& points) {
     int screenOffset = static_cast<int>(scrollOffset);
     
     // These are approximate grid cell coordinates
+
     int startRow = std::max(0, (playerRect.y - screenOffset) / GRID_SIZE);
     int endRow = std::min(totalRows - 1, (playerRect.y + playerRect.h - screenOffset) / GRID_SIZE);
     int startCol = std::max(0, playerRect.x / GRID_SIZE);
@@ -196,7 +198,8 @@ bool GameMap::checkCollision(const SDL_Rect& playerRect, int& points) {
     // Check all potentially overlapping cells
     for (int row = startRow; row <= endRow; ++row) {
         for (int col = startCol; col <= endCol; ++col) {
-            if (grid[row][col] && grid[row][col]->isActive() && !dynamic_cast<Cell*>(grid[row][col].get())->isCollected()) {
+            if (grid[row][col] && grid[row][col]->isActive() && 
+                !dynamic_cast<Cell*>(grid[row][col].get())->isCollected()) {
                 // Calculate screen position of this cell
                 SDL_Rect cellRect = {
                     col * GRID_SIZE,

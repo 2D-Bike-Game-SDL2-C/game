@@ -9,7 +9,9 @@
 
 class GameMap {
 private:
+
     std::vector<std::vector<std::unique_ptr<Cell>>> grid;
+    
     int totalRows;
     float scrollOffset;  // Fraction of a grid cell (0.0 to GRID_SIZE)
     int scrolledRows;    // Track total rows scrolled for level progression
@@ -33,4 +35,4 @@ public:
     int getScrolledRows() const;
 };
 
-#endif // GAMEMAP_H
+#endif

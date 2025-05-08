@@ -24,6 +24,7 @@ const std::string COIN_BACKGROUND_PATH = "assets/background3.png";
 const std::string COIN_FINISH_PATH = "assets/finish.png";
 
 const int PLAYER_FRAMES = 6;
+const int OBSTACLE_FRAMES = 2;
 const int COIN_FRAMES = 9;
 
 // Cell types

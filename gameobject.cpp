@@ -55,7 +55,7 @@ Cell::Cell(CellType t, int x, int y, int w, int h)
     switch (type) {
         case CellType::OBSTACLE:
             setTextureID("obstacle");
-            frameCount = PLAYER_FRAMES;
+            frameCount = OBSTACLE_FRAMES;
             animationSpeed = 30;
             break;
         case CellType::COIN:

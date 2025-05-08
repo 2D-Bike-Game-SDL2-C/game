@@ -55,11 +55,13 @@ Cell::Cell(CellType t, int x, int y, int w, int h)
     switch (type) {
         case CellType::OBSTACLE:
             setTextureID("obstacle");
-            frameCount = 2;
+            frameCount = PLAYER_FRAMES;
             animationSpeed = 30;
             break;
         case CellType::COIN:
             setTextureID("coin");
+            frameCount = COIN_FRAMES;
+            animationSpeed = 10;
             break;
         case CellType::FINISH:
             setTextureID("finish");
@@ -140,6 +142,10 @@ void Cell::collect() {
 
 void Cell::setTextureID(const std::string& id) {
     textureID = id;
+}
+
+void Cell::setType(CellType t){
+    type = t;
 }
 
 std::string& Cell::getTextureID()

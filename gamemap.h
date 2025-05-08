@@ -26,6 +26,7 @@ private:
 
     void generateRow(int rowIndex);
     void shiftRowsDown();
+    void initRows();
 
 public:
     GameMap();

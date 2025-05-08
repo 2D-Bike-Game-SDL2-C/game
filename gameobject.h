@@ -53,6 +53,7 @@ public:
     void collect();
     void setTextureID(const std::string& id);
     std::string& getTextureID();
+    void setType(CellType t);
 };
 
 // Player class

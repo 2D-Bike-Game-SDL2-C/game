@@ -47,11 +47,12 @@ bool Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     if (!TheTextureManager::Instance()->loadTexture(PLAYER_TEXTURE_PATH, PLAYER_TEXTURE_ID, renderer) ||
         !TheTextureManager::Instance()->loadTexture(OBSTACLE_TEXTURE_PATH, OBSTACLE_TEXTURE_ID, renderer) ||
         !TheTextureManager::Instance()->loadTexture(COIN_TEXTURE_PATH, COIN_TEXTURE_ID, renderer) ||
-        !TheTextureManager::Instance()->loadTexture("assets/finish.png", FINISH_TEXTURE_ID, renderer) ||
-        !TheTextureManager::Instance()->loadTexture("assets/background.png", BACKGROUND_TEXTURE_ID, renderer)) {
-        std::cerr << "Failed to load textures!" << std::endl;
-        return false;
-    }
+        !TheTextureManager::Instance()->loadTexture(COIN_FINISH_PATH, FINISH_TEXTURE_ID, renderer) ||
+        !TheTextureManager::Instance()->loadTexture(COIN_BACKGROUND_PATH, BACKGROUND_TEXTURE_ID, renderer))
+        {
+            std::cerr << "Failed to load textures!" << std::endl;
+            return false;
+        }
 
     if (TTF_Init() == -1) {
         std::cerr << "TTF_Init Error: " << TTF_GetError() << std::endl;
@@ -111,7 +112,7 @@ void Game::update() {
         
         if (points > 0) {
             player->addScore(points);
-            if (points >= 1000) {
+            if (points >= MAX_SCORE) {
                 gameState = GameState::FINISHED;
             }
         }
@@ -140,6 +141,7 @@ void Game::render() {
 
 void Game::renderUI() {
     if (!font) return;
+    
     // Score and distance backgrounds
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
     SDL_Rect scoreBg = {10, 10, 150, 40};
@@ -147,23 +149,6 @@ void Game::renderUI() {
     
     SDL_Rect distanceBg = {SCREEN_WIDTH - 160, 10, 150, 40};
     SDL_RenderFillRect(renderer, &distanceBg);
-
-    // Initialize TTF (if not already done)
-    static bool ttfInitialized = false;
-    if (!ttfInitialized) {
-        if (TTF_Init() == -1) {
-            std::cerr << "TTF_Init Error: " << TTF_GetError() << std::endl;
-            return;
-        }
-        ttfInitialized = true;
-    }
-
-    // Load font (consider caching this)
-    TTF_Font* font = TTF_OpenFont("assets/arial.ttf", 24);
-    if (!font) {
-        std::cerr << "TTF_OpenFont Error: " << TTF_GetError() << std::endl;
-        return;
-    }
 
     // Render score text
     SDL_Color textColor = {255, 255, 255, 255};
@@ -183,7 +168,7 @@ void Game::renderUI() {
     // Cleanup
     SDL_FreeSurface(textSurface);
     SDL_DestroyTexture(textTexture);
-    TTF_CloseFont(font);
+    
 
     // Game state messages
     if (gameState != GameState::PLAYING) {

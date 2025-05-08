@@ -22,9 +22,7 @@ GameMap::GameMap() :
     }
     
     // Generate initial map
-    for (int i = 0; i < totalRows; ++i) {
-        generateRow(i);
-    }
+    void initRows();
 }
 
 void GameMap::update() {
@@ -108,6 +106,17 @@ void GameMap::shiftRowsDown() {
     
     // Generate content for new row
     generateRow(0);
+}
+
+void GameMap::initRows(){
+    for (int i = 0; i < totalRows; ++i) {
+        generateRow(i);
+    }
+    for (int i = totalRows - static_cast<int>(totalRows-10); i < totalRows; ++i) {
+        for (int col = 0; col < GRID_COLS; ++col) {
+            grid[i][col]->setType(CellType::EMPTY);
+        }
+    }
 }
 
 void GameMap::generateRow(int rowIndex) {

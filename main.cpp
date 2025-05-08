@@ -6,7 +6,7 @@
 int main(int argc, char* argv[]) {
     Game game;
     
-    if (!game.init("Endless Runner", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
+    if (!game.init("2D Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
                   SCREEN_WIDTH, SCREEN_HEIGHT, false)) {
         std::cerr << "Failed to initialize game!" << std::endl;
         return 1;

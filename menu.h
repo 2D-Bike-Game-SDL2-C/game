@@ -1,4 +1,3 @@
-// menu.h
 #ifndef MENU_H
 #define MENU_H
 
@@ -20,7 +19,8 @@ enum class MenuState {
     PAUSE_MENU,
     OPTIONS_MENU,
     GAME_OVER,
-    LEVEL_COMPLETE
+    LEVEL_COMPLETE,
+    ABOUT  // Added for About screen
 };
 
 // Button class for menu items
@@ -81,7 +81,7 @@ public:
     void setBackground(const std::string& textureID);
 };
 
-// Main Menu implementation
+// MainMenu implementation
 class MainMenu : public Menu {
 public:
     MainMenu(Game* game);
@@ -90,7 +90,7 @@ public:
     void init() override;
 };
 
-// Pause Menu implementation
+// PauseMenu implementation
 class PauseMenu : public Menu {
 public:
     PauseMenu(Game* game);
@@ -99,7 +99,7 @@ public:
     void init() override;
 };
 
-// Game Over Menu implementation
+// GameOverMenu implementation
 class GameOverMenu : public Menu {
 private:
     int finalScore;
@@ -114,10 +114,9 @@ public:
     void setResults(int score, int distance);
 };
 
-// Options Menu implementation
+// OptionsMenu implementation
 class OptionsMenu : public Menu {
 private:
-    // Options settings
     bool musicEnabled;
     bool soundEnabled;
     int difficulty;
@@ -131,6 +130,17 @@ public:
     void toggleSound();
     void increaseDifficulty();
     void decreaseDifficulty();
+};
+
+// AboutMenu implementation
+class AboutMenu : public Menu {
+public:
+    AboutMenu(Game* game);
+    ~AboutMenu() = default;
+    
+    void init() override;
+    bool handleEvent(const SDL_Event& event) override;
+    void render(SDL_Renderer* renderer) override;
 };
 
 #endif // MENU_H

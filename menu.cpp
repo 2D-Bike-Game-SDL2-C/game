@@ -20,9 +20,7 @@ void Button::update() {
 }
 
 void Button::render(SDL_Renderer* renderer, TTF_Font* font) {
-    // Draw button background
     if (hasTexture) {
-        // Use texture for background
         TheTextureManager::Instance()->draw(
             buttonTextureID,
             rect.x, rect.y,
@@ -30,11 +28,9 @@ void Button::render(SDL_Renderer* renderer, TTF_Font* font) {
             renderer
         );
     } else {
-        // Draw rectangle for background
         SDL_SetRenderDrawColor(renderer, 100, 100, 100, 200);
         SDL_RenderFillRect(renderer, &rect);
         
-        // Draw border
         if (selected) {
             SDL_SetRenderDrawColor(renderer, selectedColor.r, selectedColor.g, selectedColor.b, selectedColor.a);
         } else {
@@ -43,14 +39,12 @@ void Button::render(SDL_Renderer* renderer, TTF_Font* font) {
         SDL_RenderDrawRect(renderer, &rect);
     }
     
-    // Render text
     if (font) {
         SDL_Color textColor = selected ? selectedColor : normalColor;
         SDL_Surface* textSurface = TTF_RenderText_Solid(font, text.c_str(), textColor);
         if (textSurface) {
             SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
             
-            // Center the text in the button
             SDL_Rect textRect = {
                 rect.x + (rect.w - textSurface->w) / 2,
                 rect.y + (rect.h - textSurface->h) / 2,
@@ -60,7 +54,6 @@ void Button::render(SDL_Renderer* renderer, TTF_Font* font) {
             
             SDL_RenderCopy(renderer, textTexture, nullptr, &textRect);
             
-            // Clean up
             SDL_FreeSurface(textSurface);
             SDL_DestroyTexture(textTexture);
         }
@@ -68,13 +61,10 @@ void Button::render(SDL_Renderer* renderer, TTF_Font* font) {
 }
 
 bool Button::handleEvent(const SDL_Event& event, int mouseX, int mouseY) {
-    // Check if mouse is inside button
     bool inside = (mouseX >= rect.x && mouseX <= rect.x + rect.w &&
                    mouseY >= rect.y && mouseY <= rect.y + rect.h);
     
-    // Handle different mouse events
     if (event.type == SDL_MOUSEMOTION) {
-        // Mouse hover effect
         if (inside) {
             selected = true;
             return true;
@@ -83,7 +73,6 @@ bool Button::handleEvent(const SDL_Event& event, int mouseX, int mouseY) {
         }
     } else if (event.type == SDL_MOUSEBUTTONDOWN) {
         if (inside && event.button.button == SDL_BUTTON_LEFT) {
-            // Execute click handler
             if (clickHandler) {
                 clickHandler();
             }
@@ -123,7 +112,6 @@ Menu::Menu(Game* game, const std::string& menuTitle)
       menuFont(nullptr),
       hasBackground(false),
       title(menuTitle) {
-    // Load font
     menuFont = TTF_OpenFont("assets/arial.ttf", 28);
     if (!menuFont) {
         std::cerr << "Font load error: " << TTF_GetError() << std::endl;
@@ -138,14 +126,12 @@ Menu::~Menu() {
 }
 
 void Menu::update() {
-    // Update all buttons
     for (auto& button : buttons) {
         button->update();
     }
 }
 
 void Menu::render(SDL_Renderer* renderer) {
-    // Draw background if available
     if (hasBackground) {
         TheTextureManager::Instance()->draw(
             backgroundTextureID,
@@ -154,7 +140,6 @@ void Menu::render(SDL_Renderer* renderer) {
             renderer
         );
     } else {
-        // Draw semi-transparent background
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_Rect bgRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
@@ -162,7 +147,6 @@ void Menu::render(SDL_Renderer* renderer) {
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
     }
     
-    // Render title
     if (menuFont && !title.empty()) {
         SDL_Color titleColor = {255, 255, 255, 255};
         SDL_Surface* titleSurface = TTF_RenderText_Solid(menuFont, title.c_str(), titleColor);
@@ -178,24 +162,20 @@ void Menu::render(SDL_Renderer* renderer) {
             
             SDL_RenderCopy(renderer, titleTexture, nullptr, &titleRect);
             
-            // Clean up
             SDL_FreeSurface(titleSurface);
             SDL_DestroyTexture(titleTexture);
         }
     }
     
-    // Render all buttons
     for (auto& button : buttons) {
         button->render(renderer, menuFont);
     }
 }
 
 bool Menu::handleEvent(const SDL_Event& event) {
-    // Get mouse position
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
     
-    // Check all buttons
     for (int i = 0; i < buttons.size(); ++i) {
         if (buttons[i]->handleEvent(event, mouseX, mouseY)) {
             selectedIndex = i;
@@ -203,7 +183,6 @@ bool Menu::handleEvent(const SDL_Event& event) {
         }
     }
     
-    // Handle keyboard navigation
     if (event.type == SDL_KEYDOWN) {
         switch (event.key.keysym.sym) {
             case SDLK_UP:
@@ -225,36 +204,24 @@ bool Menu::handleEvent(const SDL_Event& event) {
 void Menu::addButton(int x, int y, int w, int h, const std::string& text, std::function<void()> handler) {
     buttons.push_back(std::make_unique<Button>(x, y, w, h, text, handler));
     
-    // Select the first button by default
     if (buttons.size() == 1) {
         buttons[0]->setSelected(true);
     }
 }
 
 void Menu::navigateUp() {
-    // Deselect current button
     buttons[selectedIndex]->setSelected(false);
-    
-    // Move selection up
     selectedIndex = (selectedIndex + buttons.size() - 1) % buttons.size();
-    
-    // Select new button
     buttons[selectedIndex]->setSelected(true);
 }
 
 void Menu::navigateDown() {
-    // Deselect current button
     buttons[selectedIndex]->setSelected(false);
-    
-    // Move selection down
     selectedIndex = (selectedIndex + 1) % buttons.size();
-    
-    // Select new button
     buttons[selectedIndex]->setSelected(true);
 }
 
 void Menu::selectCurrent() {
-    // Trigger click handler for current button
     if (selectedIndex >= 0 && selectedIndex < buttons.size()) {
         buttons[selectedIndex]->handleEvent(SDL_Event{SDL_MOUSEBUTTONDOWN}, 
                                           buttons[selectedIndex]->getRect().x + 1, 
@@ -273,13 +240,11 @@ MainMenu::MainMenu(Game* game) : Menu(game, "ENDLESS RUNNER") {
 }
 
 void MainMenu::init() {
-    // Create buttons
     int buttonWidth = 300;
     int buttonHeight = 60;
     int startY = SCREEN_HEIGHT / 2 - 30;
     int spacing = 80;
     
-    // Start Game button
     addButton(
         (SCREEN_WIDTH - buttonWidth) / 2,
         startY,
@@ -291,7 +256,6 @@ void MainMenu::init() {
         }
     );
     
-    // Options button
     addButton(
         (SCREEN_WIDTH - buttonWidth) / 2,
         startY + spacing,
@@ -303,10 +267,20 @@ void MainMenu::init() {
         }
     );
     
-    // Exit button
     addButton(
         (SCREEN_WIDTH - buttonWidth) / 2,
         startY + spacing * 2,
+        buttonWidth,
+        buttonHeight,
+        "About",
+        [this]() { 
+            if (gameInstance) gameInstance->setGameState(MenuState::ABOUT); 
+        }
+    );
+    
+    addButton(
+        (SCREEN_WIDTH - buttonWidth) / 2,
+        startY + spacing * 3,
         buttonWidth,
         buttonHeight,
         "Exit Game",
@@ -322,13 +296,11 @@ PauseMenu::PauseMenu(Game* game) : Menu(game, "GAME PAUSED") {
 }
 
 void PauseMenu::init() {
-    // Create buttons
     int buttonWidth = 300;
     int buttonHeight = 60;
     int startY = SCREEN_HEIGHT / 2 - 30;
     int spacing = 80;
     
-    // Resume Game button
     addButton(
         (SCREEN_WIDTH - buttonWidth) / 2,
         startY,
@@ -340,7 +312,6 @@ void PauseMenu::init() {
         }
     );
     
-    // Main Menu button
     addButton(
         (SCREEN_WIDTH - buttonWidth) / 2,
         startY + spacing,
@@ -352,7 +323,6 @@ void PauseMenu::init() {
         }
     );
     
-    // Exit button
     addButton(
         (SCREEN_WIDTH - buttonWidth) / 2,
         startY + spacing * 2,
@@ -372,13 +342,11 @@ GameOverMenu::GameOverMenu(Game* game)
 }
 
 void GameOverMenu::init() {
-    // Create buttons
     int buttonWidth = 300;
     int buttonHeight = 60;
     int startY = SCREEN_HEIGHT / 2 + 50;
     int spacing = 80;
     
-    // Retry button
     addButton(
         (SCREEN_WIDTH - buttonWidth) / 2,
         startY,
@@ -390,7 +358,6 @@ void GameOverMenu::init() {
         }
     );
     
-    // Main Menu button
     addButton(
         (SCREEN_WIDTH - buttonWidth) / 2,
         startY + spacing,
@@ -404,14 +371,11 @@ void GameOverMenu::init() {
 }
 
 void GameOverMenu::render(SDL_Renderer* renderer) {
-    // Call parent render method
     Menu::render(renderer);
     
-    // Render score and distance
     if (menuFont) {
         SDL_Color textColor = {255, 255, 255, 255};
         
-        // Score text
         std::string scoreText = "Score: " + std::to_string(finalScore);
         SDL_Surface* scoreSurface = TTF_RenderText_Solid(menuFont, scoreText.c_str(), textColor);
         if (scoreSurface) {
@@ -426,12 +390,10 @@ void GameOverMenu::render(SDL_Renderer* renderer) {
             
             SDL_RenderCopy(renderer, scoreTexture, nullptr, &scoreRect);
             
-            // Clean up
             SDL_FreeSurface(scoreSurface);
             SDL_DestroyTexture(scoreTexture);
         }
         
-        // Distance text
         std::string distanceText = "Distance: " + std::to_string(finalDistance);
         SDL_Surface* distSurface = TTF_RenderText_Solid(menuFont, distanceText.c_str(), textColor);
         if (distSurface) {
@@ -446,7 +408,6 @@ void GameOverMenu::render(SDL_Renderer* renderer) {
             
             SDL_RenderCopy(renderer, distTexture, nullptr, &distRect);
             
-            // Clean up
             SDL_FreeSurface(distSurface);
             SDL_DestroyTexture(distTexture);
         }
@@ -465,13 +426,11 @@ OptionsMenu::OptionsMenu(Game* game)
 }
 
 void OptionsMenu::init() {
-    // Create buttons
     int buttonWidth = 300;
     int buttonHeight = 60;
     int startY = SCREEN_HEIGHT / 2 - 90;
     int spacing = 80;
     
-    // Music toggle button
     addButton(
         (SCREEN_WIDTH - buttonWidth) / 2,
         startY,
@@ -483,7 +442,6 @@ void OptionsMenu::init() {
         }
     );
     
-    // Sound effects toggle button
     addButton(
         (SCREEN_WIDTH - buttonWidth) / 2,
         startY + spacing,
@@ -495,7 +453,6 @@ void OptionsMenu::init() {
         }
     );
     
-    // Difficulty button
     addButton(
         (SCREEN_WIDTH - buttonWidth) / 2,
         startY + spacing * 2,
@@ -507,7 +464,6 @@ void OptionsMenu::init() {
         }
     );
     
-    // Back button
     addButton(
         (SCREEN_WIDTH - buttonWidth) / 2,
         startY + spacing * 3,
@@ -524,7 +480,6 @@ void OptionsMenu::toggleMusic() {
     musicEnabled = !musicEnabled;
     buttons[0]->setPosition(buttons[0]->getRect().x, buttons[0]->getRect().y);
     
-    // TODO: Actually toggle game music
     std::string buttonText = "Music: ";
     buttonText += (musicEnabled ? "ON" : "OFF");
     buttons[0] = std::make_unique<Button>(
@@ -541,7 +496,6 @@ void OptionsMenu::toggleMusic() {
 void OptionsMenu::toggleSound() {
     soundEnabled = !soundEnabled;
     
-    // TODO: Actually toggle game sound effects
     std::string buttonText = "Sound Effects: ";
     buttonText += (soundEnabled ? "ON" : "OFF");
     buttons[1] = std::make_unique<Button>(
@@ -575,8 +529,6 @@ void OptionsMenu::increaseDifficulty() {
         [this]() { increaseDifficulty(); }
     );
     buttons[2]->setSelected(false);
-    
-    // TODO: Set game difficulty
 }
 
 void OptionsMenu::decreaseDifficulty() {
@@ -599,6 +551,37 @@ void OptionsMenu::decreaseDifficulty() {
         [this]() { decreaseDifficulty(); }
     );
     buttons[2]->setSelected(false);
+}
+
+// AboutMenu implementation
+AboutMenu::AboutMenu(Game* game) : Menu(game, "") {
+    init();
+}
+
+void AboutMenu::init() {
+    int buttonWidth = 300;
+    int buttonHeight = 60;
+    int margin = 20;
+    int x = (SCREEN_WIDTH - buttonWidth) / 2;
+    int y = SCREEN_HEIGHT - buttonHeight - margin;
     
-    // TODO: Set game difficulty
+    addButton(x, y, buttonWidth, buttonHeight, "Back", [this]() {
+        if (gameInstance) {
+            gameInstance->setGameState(MenuState::MAIN_MENU);
+        }
+    });
+}
+
+bool AboutMenu::handleEvent(const SDL_Event& event) {
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
+        if (gameInstance) {
+            gameInstance->setGameState(MenuState::MAIN_MENU);
+        }
+        return true;
+    }
+    return Menu::handleEvent(event);
+}
+
+void AboutMenu::render(SDL_Renderer* renderer) {
+    Menu::render(renderer);  // Renders the background and the button
 }

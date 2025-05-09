@@ -25,6 +25,7 @@ private:
     std::unique_ptr<PauseMenu> pauseMenu;
     std::unique_ptr<GameOverMenu> gameOverMenu;
     std::unique_ptr<OptionsMenu> optionsMenu;
+    std::unique_ptr<AboutMenu> aboutMenu;  // Added for About screen
     
     // Texture IDs
     const std::string PLAYER_TEXTURE_ID = "player";
@@ -33,6 +34,7 @@ private:
     const std::string FINISH_TEXTURE_ID = "finish";
     const std::string BACKGROUND_TEXTURE_ID = "background";
     const std::string MENU_BACKGROUND_ID = "menu_background";
+    const std::string ABOUT_BACKGROUND_ID = "about_background";  // Added for About screen
 
     void handleEvents();
     void update();

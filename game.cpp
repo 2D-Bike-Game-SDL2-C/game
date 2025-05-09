@@ -7,7 +7,7 @@ Game::Game() :
     window(nullptr), 
     renderer(nullptr), 
     gameState(GameState::PLAYING),
-    menuState(MenuState::MAIN_MENU), // Start with main menu
+    menuState(MenuState::MAIN_MENU),
     running(false) {
 }
 
@@ -38,19 +38,18 @@ bool Game::init(const char* title, int xpos, int ypos, int width, int height, bo
         return false;
     }
 
-    // Initialize texture manager
     if (!TheTextureManager::Instance()->init()) {
         std::cerr << "TextureManager initialization failed!" << std::endl;
         return false;
     }
 
-    // Load textures
     if (!TheTextureManager::Instance()->loadTexture(PLAYER_TEXTURE_PATH, PLAYER_TEXTURE_ID, renderer) ||
         !TheTextureManager::Instance()->loadTexture(OBSTACLE_TEXTURE_PATH, OBSTACLE_TEXTURE_ID, renderer) ||
         !TheTextureManager::Instance()->loadTexture(COIN_TEXTURE_PATH, COIN_TEXTURE_ID, renderer) ||
         !TheTextureManager::Instance()->loadTexture(COIN_FINISH_PATH, FINISH_TEXTURE_ID, renderer) ||
         !TheTextureManager::Instance()->loadTexture(COIN_BACKGROUND_PATH, BACKGROUND_TEXTURE_ID, renderer) ||
-        !TheTextureManager::Instance()->loadTexture(COIN_BACKGROUND_PATH, MENU_BACKGROUND_ID, renderer)) {
+        !TheTextureManager::Instance()->loadTexture(COIN_BACKGROUND_PATH, MENU_BACKGROUND_ID, renderer) ||
+        !TheTextureManager::Instance()->loadTexture("assets/about.png", ABOUT_BACKGROUND_ID, renderer)) {
         std::cerr << "Failed to load textures!" << std::endl;
         return false;
     }
@@ -65,12 +64,10 @@ bool Game::init(const char* title, int xpos, int ypos, int width, int height, bo
         return false;
     }
 
-    // Initialize game objects
     player = std::make_unique<Player>(SCREEN_WIDTH / 2 - PLAYER_WIDTH / 2, SCREEN_HEIGHT - PLAYER_HEIGHT - 50);
     player->setTextureID(PLAYER_TEXTURE_ID);
     gameMap = std::make_unique<GameMap>();
 
-    // Initialize menus
     initMenus();
 
     running = true;
@@ -89,6 +86,9 @@ void Game::initMenus() {
     
     optionsMenu = std::make_unique<OptionsMenu>(this);
     optionsMenu->setBackground(MENU_BACKGROUND_ID);
+    
+    aboutMenu = std::make_unique<AboutMenu>(this);
+    aboutMenu->setBackground(ABOUT_BACKGROUND_ID);
 }
 
 void Game::handleEvents() {
@@ -99,7 +99,6 @@ void Game::handleEvents() {
             return;
         }
 
-        // Handle menu events
         switch (menuState) {
             case MenuState::MAIN_MENU:
                 if (mainMenu->handleEvent(event)) {
@@ -121,12 +120,16 @@ void Game::handleEvents() {
                     continue;
                 }
                 break;
+            case MenuState::ABOUT:
+                if (aboutMenu->handleEvent(event)) {
+                    continue;
+                }
+                break;
             case MenuState::LEVEL_COMPLETE:
             case MenuState::GAME_PLAYING:
                 break;
         }
 
-        // Handle game events when playing
         if (menuState == MenuState::GAME_PLAYING && gameState == GameState::PLAYING) {
             if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDL_SCANCODE_ESCAPE) {
@@ -136,7 +139,6 @@ void Game::handleEvents() {
         }
     }
 
-    // Handle keyboard input for player movement
     if (menuState == MenuState::GAME_PLAYING && gameState == GameState::PLAYING) {
         const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
         if (currentKeyStates[SDL_SCANCODE_LEFT] || currentKeyStates[SDL_SCANCODE_A]) {
@@ -161,6 +163,9 @@ void Game::update() {
             break;
         case MenuState::OPTIONS_MENU:
             optionsMenu->update();
+            break;
+        case MenuState::ABOUT:
+            aboutMenu->update();
             break;
         case MenuState::LEVEL_COMPLETE:
         case MenuState::GAME_PLAYING:
@@ -200,7 +205,6 @@ void Game::render() {
             mainMenu->render(renderer);
             break;
         case MenuState::PAUSE_MENU:
-            // Render game in background
             TheTextureManager::Instance()->draw(BACKGROUND_TEXTURE_ID, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, renderer);
             gameMap->render(renderer);
             player->render(renderer);
@@ -208,7 +212,6 @@ void Game::render() {
             pauseMenu->render(renderer);
             break;
         case MenuState::GAME_OVER:
-            // Render game in background
             TheTextureManager::Instance()->draw(BACKGROUND_TEXTURE_ID, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, renderer);
             gameMap->render(renderer);
             player->render(renderer);
@@ -218,15 +221,16 @@ void Game::render() {
         case MenuState::OPTIONS_MENU:
             optionsMenu->render(renderer);
             break;
+        case MenuState::ABOUT:
+            aboutMenu->render(renderer);
+            break;
         case MenuState::LEVEL_COMPLETE:
         case MenuState::GAME_PLAYING:
-            // Render game
             TheTextureManager::Instance()->draw(BACKGROUND_TEXTURE_ID, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, renderer);
             gameMap->render(renderer);
             player->render(renderer);
             renderUI();
             
-            // Show completion message for level complete
             if (menuState == MenuState::LEVEL_COMPLETE) {
                 SDL_Color messageColor = {0, 255, 0, 255};
                 const char* message = "Level Complete! Press R to restart";
@@ -259,9 +263,7 @@ void Game::render() {
 void Game::renderUI() {
     if (!font) return;
     
-    // Only render UI during gameplay
     if (menuState == MenuState::GAME_PLAYING || menuState == MenuState::PAUSE_MENU || menuState == MenuState::GAME_OVER) {
-        // Score and distance backgrounds
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
         SDL_Rect scoreBg = {10, 10, 150, 40};
         SDL_RenderFillRect(renderer, &scoreBg);
@@ -269,7 +271,6 @@ void Game::renderUI() {
         SDL_Rect distanceBg = {SCREEN_WIDTH - 160, 10, 150, 40};
         SDL_RenderFillRect(renderer, &distanceBg);
 
-        // Render score text
         SDL_Color textColor = {255, 255, 255, 255};
         std::string scoreText = "Score: " + std::to_string(player->getScore());
         SDL_Surface* textSurface = TTF_RenderText_Solid(font, scoreText.c_str(), textColor);
@@ -282,7 +283,6 @@ void Game::renderUI() {
             SDL_DestroyTexture(textTexture);
         }
         
-        // Render distance text
         std::string distanceText = "Distance: " + std::to_string(gameMap->getScrolledRows());
         textSurface = TTF_RenderText_Solid(font, distanceText.c_str(), textColor);
         if (textSurface) {
@@ -338,7 +338,6 @@ void Game::run() {
 void Game::setGameState(MenuState state) {
     menuState = state;
     
-    // Update game state based on menu state
     switch (menuState) {
         case MenuState::GAME_PLAYING:
             gameState = GameState::PLAYING;
@@ -352,6 +351,7 @@ void Game::setGameState(MenuState state) {
         case MenuState::MAIN_MENU:
         case MenuState::PAUSE_MENU:
         case MenuState::OPTIONS_MENU:
+        case MenuState::ABOUT:
             // No change to gameState
             break;
     }

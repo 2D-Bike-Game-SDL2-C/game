@@ -133,7 +133,7 @@ void Menu::update() {
 
 void Menu::render(SDL_Renderer* renderer) {
     if (hasBackground) {
-        TheTextureManager::Instance()->draw(
+        TheTextureManager::Instance()->drawWhole(
             backgroundTextureID,
             0, 0,
             SCREEN_WIDTH, SCREEN_HEIGHT,

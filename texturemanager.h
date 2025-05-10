@@ -35,6 +35,9 @@ public:
     // Draw texture (entire texture)
     void draw(const std::string& id, int x, int y, int width, int height, 
               SDL_Renderer* renderer, SDL_RendererFlip flip = SDL_FLIP_NONE);
+
+    void drawWhole(const std::string& id, int x, int y, int width, int height, 
+        SDL_Renderer* renderer, SDL_RendererFlip flip = SDL_FLIP_NONE);
     
     // Draw frame from sprite sheet
     void drawFrame(const std::string& id, int x, int y, int width, int height, 

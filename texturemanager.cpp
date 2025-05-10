@@ -59,6 +59,15 @@ void TextureManager::draw(const std::string& id, int x, int y, int width, int he
     SDL_RenderCopyEx(renderer, textureMap[id], &srcRect, &destRect, 0, nullptr, flip);
 }
 
+void TextureManager::drawWhole(const std::string& id, int x, int y, int width, int height, 
+    SDL_Renderer* renderer, SDL_RendererFlip flip)
+{
+    SDL_Rect destRect = {x, y, width, height};
+    
+    // Render the texture
+    SDL_RenderCopyEx(renderer, textureMap[id], NULL, &destRect, 0, nullptr, flip);
+}
+
 void TextureManager::drawFrame(const std::string& id, int x, int y, int width, int height, 
                               int currentRow, int currentFrame, SDL_Renderer* renderer, 
                               SDL_RendererFlip flip) {

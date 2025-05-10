@@ -82,6 +82,7 @@ void GameMap::render(SDL_Renderer* renderer) const {
                     if (cell && !cell->isCollected() && !cell->getTextureID().empty()) {
                         cell->render(renderer, tempRect);
                     }
+                    
                     /*else {
                         // Fallback to default rendering (optional, but provides safety)
                         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);

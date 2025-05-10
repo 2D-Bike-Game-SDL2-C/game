@@ -46,10 +46,10 @@ bool Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     if (!TheTextureManager::Instance()->loadTexture(PLAYER_TEXTURE_PATH, PLAYER_TEXTURE_ID, renderer) ||
         !TheTextureManager::Instance()->loadTexture(OBSTACLE_TEXTURE_PATH, OBSTACLE_TEXTURE_ID, renderer) ||
         !TheTextureManager::Instance()->loadTexture(COIN_TEXTURE_PATH, COIN_TEXTURE_ID, renderer) ||
-        !TheTextureManager::Instance()->loadTexture(COIN_FINISH_PATH, FINISH_TEXTURE_ID, renderer) ||
-        !TheTextureManager::Instance()->loadTexture(COIN_BACKGROUND_PATH, BACKGROUND_TEXTURE_ID, renderer) ||
-        !TheTextureManager::Instance()->loadTexture(COIN_BACKGROUND_PATH, MENU_BACKGROUND_ID, renderer) ||
-        !TheTextureManager::Instance()->loadTexture("assets/about.png", ABOUT_BACKGROUND_ID, renderer)) {
+        !TheTextureManager::Instance()->loadTexture(FINISH_PATH, FINISH_TEXTURE_ID, renderer) ||
+        !TheTextureManager::Instance()->loadTexture(BACKGROUND_PATH, BACKGROUND_TEXTURE_ID, renderer) ||
+        !TheTextureManager::Instance()->loadTexture(MENU_BACKGROUND_PATH, MENU_BACKGROUND_ID, renderer) ||
+        !TheTextureManager::Instance()->loadTexture(ABOUT_BACKGROUND_PATH, ABOUT_BACKGROUND_ID, renderer)) {
         std::cerr << "Failed to load textures!" << std::endl;
         return false;
     }

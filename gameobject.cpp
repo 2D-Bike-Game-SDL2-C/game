@@ -56,12 +56,12 @@ Cell::Cell(CellType t, int x, int y, int w, int h)
         case CellType::OBSTACLE:
             setTextureID("obstacle");
             frameCount = OBSTACLE_FRAMES;
-            animationSpeed = 30;
+            animationSpeed = OBSTACLE_ANIMATION_SPEED;
             break;
         case CellType::COIN:
             setTextureID("coin");
             frameCount = COIN_FRAMES;
-            animationSpeed = 10;
+            animationSpeed = COIN_ANIMATION_SPEED;
             break;
         case CellType::FINISH:
             setTextureID("finish");

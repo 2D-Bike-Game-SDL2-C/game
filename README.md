@@ -4,7 +4,7 @@
 
 You can watch the gameplay video below:
 
-![Gameplay Video](https://youtu.be/uDZLCjpUWxQ)
+Gameplay Video : https://youtu.be/uDZLCjpUWxQ
 
 ## Overview
 

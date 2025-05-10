@@ -1,5 +1,11 @@
 # Endless Runner Game
 
+## Gameplay Video
+
+You can watch the gameplay video below:
+
+![Gameplay Video](https://youtu.be/uDZLCjpUWxQ)
+
 ## Overview
 
 This is an Endless Runner game developed using **C++** and the **SDL2** library. The game features a player navigating through a scrolling grid-based map, avoiding obstacles, collecting coins, and aiming to reach a finish line. It includes multiple menus (Main Menu, Pause Menu, Game Over Menu, Options Menu, and About Menu) to provide a complete user experience.

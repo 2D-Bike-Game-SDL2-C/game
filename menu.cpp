@@ -223,7 +223,10 @@ void Menu::navigateDown() {
 
 void Menu::selectCurrent() {
     if (selectedIndex >= 0 && selectedIndex < buttons.size()) {
-        buttons[selectedIndex]->handleEvent(SDL_Event{SDL_MOUSEBUTTONDOWN}, 
+        SDL_Event event;
+        event.type = SDL_MOUSEBUTTONDOWN;
+        event.button.button = SDL_BUTTON_LEFT;
+        buttons[selectedIndex]->handleEvent(event, 
                                           buttons[selectedIndex]->getRect().x + 1, 
                                           buttons[selectedIndex]->getRect().y + 1);
     }
@@ -235,7 +238,7 @@ void Menu::setBackground(const std::string& textureID) {
 }
 
 // MainMenu implementation
-MainMenu::MainMenu(Game* game) : Menu(game, "ENDLESS RUNNER") {
+MainMenu::MainMenu(Game* game) : Menu(game, " ") {
     init();
 }
 
@@ -278,7 +281,7 @@ void MainMenu::init() {
         }
     );
     
-    addButton(
+    addButton( 
         (SCREEN_WIDTH - buttonWidth) / 2,
         startY + spacing * 3,
         buttonWidth,
